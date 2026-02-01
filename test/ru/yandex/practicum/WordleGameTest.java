@@ -2,12 +2,9 @@ package ru.yandex.practicum;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class WordleTest {
-
+public class WordleGameTest {
     @Test
-    public void checkWordleTest() {
+    public void createFilteredDictionaryTest() {
         PrintWriter log = new PrintWriter("log.txt");
         WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader("words_ru.txt", log);
         WordleDictionary wordleDictionary = wordleDictionaryLoader.getWordleDictionary();
@@ -34,5 +31,4 @@ class WordleTest {
         }
         System.out.println("Ходы закончились - Вы проиграли");
     }
-
 }

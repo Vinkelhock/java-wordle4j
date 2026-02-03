@@ -23,9 +23,9 @@ public class WordleGame {
     private final List<String> usedWords = new ArrayList<>();
     private final Random random = new Random();
     private List<String> filteredDictionary = new ArrayList<>();
-    private final HashMap<Integer, String> plus = new HashMap<>();
-    private final HashMap<Integer, ArrayList<String>> minus = new HashMap<>();
-    private final ArrayList<String> somewhere = new ArrayList<>();
+    private final HashMap<Integer, String> listWithPatternPlus = new HashMap<>();
+    private final HashMap<Integer, ArrayList<String>> listWithPatternMinus = new HashMap<>();
+    private final ArrayList<String> listWithPatternSomewhere = new ArrayList<>();
 
     public WordleGame(WordleDictionary dictionary, PrintWriter log) {
         this.wordleDictionary = dictionary;
@@ -50,8 +50,8 @@ public class WordleGame {
             if (word.isBlank()) {
                 throw new InputException("Слово состоит из пробельных символов");
             }
-            for (char c : word.toCharArray()) {
-                if (c >= 'a' && c <= 'z') {
+            for (char element : word.toCharArray()) {
+                if (element >= 'a' && element <= 'z') {
                     throw new InputException("Слово состоит из английских букв");
                 }
             }
@@ -67,32 +67,32 @@ public class WordleGame {
             System.out.println("Слово угадано. Это " + this.answer);
             return this.answer;
         } else {
-            StringBuilder str = new StringBuilder();
+            StringBuilder line = new StringBuilder();
             for (int i = 0; i < word.length(); i++) {
                 if (word.substring(i, i + 1).equals(this.answer.substring(i, i + 1))) {
-                    str.append("+");
-                    this.plus.put(i, word.substring(i, i + 1));
+                    line.append("+");
+                    this.listWithPatternPlus.put(i, word.substring(i, i + 1));
                 } else {
                     String searchElement = word.substring(i, i + 1);
                     int index = this.answer.indexOf(searchElement);
                     if (index == -1) {
-                        str.append("-");
+                        line.append("-");
                         ArrayList<String> value = new ArrayList<>();
-                        if (this.minus.containsKey(i)) {
-                            value = this.minus.get(i);
+                        if (this.listWithPatternMinus.containsKey(i)) {
+                            value = this.listWithPatternMinus.get(i);
                             value.add(word.substring(i, i + 1));
                         } else {
                             value.add(word.substring(i, i + 1));
                         }
-                        this.minus.put(i, value);
+                        this.listWithPatternMinus.put(i, value);
                     } else {
-                        str.append("^");
-                        this.somewhere.add(word.substring(i, i + 1));
+                        line.append("^");
+                        this.listWithPatternSomewhere.add(word.substring(i, i + 1));
                     }
                 }
             }
-            this.pattern = str.toString();
-            return str.toString();
+            this.pattern = line.toString();
+            return line.toString();
         }
     }
 
@@ -107,17 +107,15 @@ public class WordleGame {
             dictionary = filteredDictionary;
         }
         for (int i = 0; i < this.pattern.length(); i++) {
-            if (this.plus.containsKey(i)) {
-                if (this.minus.containsKey(i)) {
-                    this.minus.remove(i);
-                }
+            if (this.listWithPatternPlus.containsKey(i) && this.listWithPatternMinus.containsKey(i)) {
+                this.listWithPatternMinus.remove(i);
             }
         }
 
         for (String line : dictionary) {
 
             boolean label = true;
-            for (Map.Entry<Integer, String> entry : plus.entrySet()) {
+            for (Map.Entry<Integer, String> entry : listWithPatternPlus.entrySet()) {
                 if (!line.substring(entry.getKey(), entry.getKey() + 1).equals(entry.getValue())) {
                     label = false;
                     break;
@@ -125,7 +123,7 @@ public class WordleGame {
             }
             if (!label) continue;
 
-            for (Map.Entry<Integer, ArrayList<String>> entry : minus.entrySet()) {
+            for (Map.Entry<Integer, ArrayList<String>> entry : listWithPatternMinus.entrySet()) {
                 for (String element : entry.getValue()) {
                     if (line.substring(entry.getKey(), entry.getKey() + 1).equals(element)) {
                         label = false;
@@ -136,7 +134,7 @@ public class WordleGame {
             }
             if (!label) continue;
 
-            for (String element : somewhere) {
+            for (String element : listWithPatternSomewhere) {
                 int index = line.indexOf(element);
                 if (index == -1) {
                     label = false;
@@ -161,14 +159,6 @@ public class WordleGame {
         this.usedWords.add(word);
     }
 
-    public String getPattern() {
-        return this.pattern;
-    }
-
-    public List<String> getUsedWords() {
-        return this.usedWords;
-    }
-
     public int getSteps() {
         return this.steps;
     }
@@ -177,23 +167,19 @@ public class WordleGame {
         return this.answer;
     }
 
-    public WordleDictionary getWordleDictionary() {
-        return wordleDictionary;
-    }
-
     public List<String> getFilteredDictionary() {
         return this.filteredDictionary;
     }
 
     public void toStringPlus() {
-        System.out.println("Плюс" + plus);
+        System.out.println("Плюс" + listWithPatternPlus);
     }
 
     public void toStringMinus() {
-        System.out.println("Минус" + minus);
+        System.out.println("Минус" + listWithPatternMinus);
     }
 
     public void toStringSome() {
-        System.out.println("Somewhere" + somewhere);
+        System.out.println("Somewhere" + listWithPatternSomewhere);
     }
 }
